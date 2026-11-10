@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚖️ الحَكَم - محكمة الذكاء الاصطناعي</title>
+    <meta name="description" content="الحَكَم: محكمة الذكاء الاصطناعي الشعبية. اكتب مشكلتك واحصل على حكم مضحك بالعامية المصرية">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 600px; margin: 0 auto; }
+        h1 { text-align: center; font-size: 2.5em; color: #ffd700; margin-bottom: 10px; cursor: pointer; }
+        .subtitle { text-align: center; color: #aaa; margin-bottom: 30px; font-size: 1.1em; }
+        
+        /* Navigation */
+        .nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .nav-btn {
+            background: #1a1a1a;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: #ffd700;
+            color: #000;
+        }
+        
+        textarea {
+            width: 100%; min-height: 150px; padding: 15px;
+            border: 2px solid #333; border-radius: 10px;
+            background: #1a1a1a; color: #fff;
+            font-family: 'Cairo', sans-serif; font-size: 16px;
+            margin-bottom: 20px; resize: vertical;
+        }
+        textarea:focus { outline: none; border-color: #ffd700; }
+        
+        .main-btn {
+            width: 100%; padding: 15px;
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #000; border: none; border-radius: 10px;
+            font-family: 'Cairo', sans-serif; font-size: 18px; font-weight: bold; cursor: pointer;
+        }
+        .main-btn:disabled { opacity: 0.5; }
+        
+        .verdict {
+            margin-top: 30px; padding: 20px;
+            background: #1a1a1a; border: 2px solid #ffd700;
+            border-radius: 15px; display: none;
+        }
+        .verdict h2 { color: #ffd700; margin-bottom: 15px; text-align: center; font-size: 1.5em; }
+        .verdict-item {
+            margin: 15px 0; padding: 12px;
+            background: #0a0a0a; border-radius: 8px;
+            border-right: 3px solid #ffd700;
+        }
+        .verdict-item strong { color: #ffd700; display: block; margin-bottom: 5px; }
+        .verdict-item ul { padding-right: 20px; margin-top: 5px; }
+        .verdict-item li { margin: 5px 0; }
+        .loading { text-align: center; color: #ffd700; margin: 20px 0; display: none; font-size: 1.2em; }
+        .closing {
+            text-align: center; font-size: 1.3em; color: #ffd700;
+            margin-top: 20px; padding: 15px; border-top: 1px dashed #ffd700;
+        }
+        .error {
+            background: rgba(255,0,0,0.2); border: 2px solid #ff4444;
+            color: #fff; padding: 15px; border-radius: 10px;
+            margin-top: 20px; display: none;
+        }
+        
+        /* Share Buttons */
+        .share-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px dashed #ffd700;
+            text-align: center;
+        }
+        .share-title {
+            color: #ffd700;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+        .share-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .share-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #fff;
+            transition: transform 0.2s;
+        }
+        .share-btn:hover { transform: scale(1.05); }
+        .share-whatsapp { background: #25D366; }
+        .share-facebook { background: #1877F2; }
+        .share-twitter { background: #1DA1F2; }
+        .share-telegram { background: #0088cc; }
+        .share-copy { background: #666; }
+        
+        /* Pages */
+        .page { display: none; }
+        .page.active { display: block; }
+        .page-content {
+            background: #1a1a1a;
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #333;
+            line-height: 1.8;
+        }
+        .page-content h2 {
+            color: #ffd700;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #ffd700;
+            padding-bottom: 10px;
+        }
+        .page-content p { margin-bottom: 15px; color: #ddd; }
+        
+        .example-card {
+            background: #0a0a0a;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            border-right: 3px solid #ffd700;
+        }
+        .example-card h3 { color: #ffd700; margin-bottom: 10px; }
+        
+        .footer {
+            text-align: center;
+            color: #666;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #333;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 onclick="showPage('home')">⚖️ الحَكَم</h1>
+        <p class="subtitle">محكمة الذكاء الاصطناعي الشعبية</p>
+        
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-btn active" onclick="showPage('home')">🏠 الرئيسية</button>
+            <button class="nav-btn" onclick="showPage('examples')">📜 أمثلة أحكام</button>
+            <button class="nav-btn" onclick="showPage('about')">ℹ️ من نحن</button>
+            <button class="nav-btn" onclick="showPage('privacy')">🔒 الخصوصية</button>
+        </div>
+        
+        <!-- Home Page -->
+        <div id="page-home" class="page active">
+            <textarea id="problem" placeholder="اكتب مشكلتك"></textarea>
+            <button class="main-btn" id="judgeBtn" onclick="getVerdict()">🔥 احكم يا قاضي</button>
+            <div class="loading" id="loading">⚖️ المحكمة بتفكر...</div>
+            <div class="error" id="error"></div>
+            <div class="verdict" id="verdict">
+                <h2>📜 شهادة حكم نهائي</h2>
+                <div id="verdictContent"></div>
+                
+                <!-- Share Section -->
+                <div class="share-section">
+                    <div class="share-title">📢 شارك الحكم مع صحابك!</div>
+                    <div class="share-buttons">
+                        <button class="share-btn share-whatsapp" onclick="shareOn('whatsapp')">واتساب</button>
+                        <button class="share-btn share-facebook" onclick="shareOn('facebook')">فيسبوك</button>
+                        <button class="share-btn share-twitter" onclick="shareOn('twitter')">تويتر</button>
+                        <button class="share-btn share-telegram" onclick="shareOn('telegram')">تليجرام</button>
+                        <button class="share-btn share-copy" onclick="copyVerdict()">📋 نسخ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Examples Page -->
+        <div id="page-examples" class="page">
+            <div class="page-content">
+                <h2>📜 أمثلة من أحكام المحكمة</h2>
+                
+                <div class="example-card">
+                    <h3>⚖️ قضية نسيان عيد الميلاد</h3>
+                    <p><strong>المشكلة:</strong> نسيت عيد ميلاد خطيبتي وقولت لها إن الشغل كان كتير</p>
+                    <p><strong>الحكم:</strong> المتهم غلطان بنسبة 85%. الشغل مش عذر، عيد الميلاد مش فاتورة كهرباء!</p>
+                    <p><strong>العقوبة:</strong> يجيب علبة شوكولاتة ويغني لها أغنية رومانسية بصوت عالي قدام الجيران 😂</p>
+                </div>
+                
+                <div class="example-card">
+                    <h3>⚖️ قضية الكشري بدون دقة</h3>
+                    <p><strong>المشكلة:</strong> صاحبي قال إن الكشري من غير دقة أحلى</p>
+                    <p><strong>الحكم:</strong> المتهم خارج عن الملة! الكشري بدون دقة زي الشاي بدون سكر - جريمة!</p>
+                    <p><strong>العقوبة:</strong> ياكل كشري سادة لمدة أسبوع كامل 😂</p>
+                </div>
+                
+                <div class="example-card">
+                    <h3>⚖️ قضية السهر لحد الفجر</h3>
+                    <p><strong>المشكلة:</strong> أمي زعلانة إني بسهر لحد الفجر</p>
+                    <p><strong>الحكم:</strong> المتهم غلطان بنسبة 70%. النوم بدري سنة، والسهر الطويل بيكسر الظهر!</p>
+                    <p><strong>العقوبة:</strong> ينام الساعة 10 لمدة شهر ويصور نفسه وهو بينام 😂</p>
+                </div>
+                
+                <div class="example-card">
+                    <h3>⚖️ قضية الرد المتأخر على الواتساب</h3>
+                    <p><strong>المشكلة:</strong> خطيبتي بتزعل إني برد متأخر على رسائلها</p>
+                    <p><strong>الحكم:</strong> المتهم غلطان بنسبة 90%. الرد المتأخر جريمة في حق الحب!</p>
+                    <p><strong>العقوبة:</strong> يرد على كل رسالة بـ 10 رسائل اعتذار صوتية 😂</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- About Page -->
+        <div id="page-about" class="page">
+            <div class="page-content">
+                <h2>ℹ️ من نحن</h2>
+                <p>⚖️ <strong>الحَكَم</strong> هي محكمة الذكاء الاصطناعي الشعبية الأولى من نوعها في العالم العربي!</p>
+                <p>فكرتنا بسيطة: بدل ما تروح المحامي وتدفله فلوس، تعال عندنا واحكي لنا مشكلتك، وقاضي الذكاء الاصطناعي هيفصل في قضيتك بحكم مضحك وعادل بالعامية المصرية.</p>
+                <p>🎯 <strong>هدفنا:</strong> نضحكك ونفرحك ونحل مشاكلنا اليومية بطريقة كوميدية ذكية.</p>
+                <p>⚡ <strong>كيف نعمل:</strong> نستخدم أحدث تقنيات الذكاء الاصطناعي (Google Gemini) لتحليل مشكلتك وإصدار حكم عادل ومضحك في ثوانٍ معدودة.</p>
+                <p>📱 <strong>مميزاتنا:</strong></p>
+                <ul style="padding-right: 20px; color: #ddd;">
+                    <li>⚡ أحكام فورية في ثوانٍ</li>
+                    <li>😂 عامية مصرية خفيفة ومضحكة</li>
+                    <li>📢 مشاركة سهلة على السوشيال ميديا</li>
+                    <li>🆓 مجاني 100% للأبد</li>
+                </ul>
+                <p>💡 <strong>نصيحة:</strong> الموقع ده للترفيه فقط، مش بديل عن المحامي الحقيقي في القضايا الجدية! 😄</p>
+            </div>
+        </div>
+        
+        <!-- Privacy Page -->
+        <div id="page-privacy" class="page">
+            <div class="page-content">
+                <h2>🔒 سياسة الخصوصية</h2>
+                <p>آخر تحديث: نوفمبر 2026</p>
+                
+                <p><strong>1. المعلومات التي نجمعها:</strong></p>
+                <p>نحن لا نجمع أي معلومات شخصية عنك. المشاكل التي تكتبها تُرسل مباشرة إلى Google Gemini للمعالجة ولا يتم تخزينها على خوادمنا.</p>
+                
+                <p><strong>2. ملفات تعريف الارتباط (Cookies):</strong></p>
+                <p>الموقع لا يستخدم ملفات تعريف الارتباط. قد نستخدم خدمات تحليلية (مثل Google Analytics) في المستقبل لتحسين تجربة المستخدم.</p>
+                
+                <p><strong>3. الإعلانات:</strong></p>
+                <p>قد نعرض إعلانات من Google AdSense. هذه الإعلانات قد تستخدم ملفات تعريف الارتباط لعرض إعلانات ذات صلة باهتماماتك.</p>
+                
+                <p><strong>4. مشاركتك للمحتوى:</strong></p>
+                <p>عند مشاركة الأحكام على منصات التواصل الاجتماعي، تطبق سياسات الخصوصية الخاصة بتلك المنصات.</p>
+                
+                <p><strong>5. الأمان:</strong></p>
+                <p>نستخدم تقنيات تشفير قياسية لحماية البيانات المرسلة. ومع ذلك، ننصح بعدم كتابة معلومات حساسة أو شخصية جداً.</p>
+                
+                <p><strong>6. حقوقك:</strong></p>
+                <p>لديك الحق في طلب حذف أي بيانات مرتبطة بك. للتواصل: alhakam@example.com</p>
+                
+                <p><strong>7. التعديلات:</strong></p>
+                <p>نحتفظ بالحق في تعديل سياسة الخصوصية في أي وقت. سيتم نشر التحديثات على هذه الصفحة.</p>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>⚖️ الحَكَم © 2026 - جميع الحقوق محفوظة</p>
+            <p>صُنع بـ ❤️ في مصر</p>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = 'AQ.Ab8RN6JoqvK_r9OnelR4YbhpK5bJUBcjVv8qPdGB9mcZ5tnUnA';
+        const MODEL = 'gemini-3.5-flash-lite';
+        let currentVerdict = null;
+        let currentProblem = '';
+        
+        const SYSTEM_PROMPT = `أنت الحَكَم: قاضي المحكمة الشعبية العليا، دمه خفيف جداً وبتتكلم عامية مصرية.
+
+المشكلة: {problem}
+
+ردك لازم يكون JSON فقط بالصيغة دي:
+{"case_title":"عنوان مضحك","accused":"المتهم: ...","victim":"المجني عليه: ...","analysis":"تحليل كوميدي 3 جمل","verdict":"الحكم مع النسبة","punishment":["عقوبة 1","عقوبة 2","عقوبة 3"],"closing":"جملة ختامية مضحكة"}
+
+قواعد: عامية مصرية، ممنوع وعظ، عقوبات رخيصة تحت 10 جنيه. لا تكتب أي كلام قبل أو بعد الـ JSON.`;
+
+        // Page Navigation
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById('page-' + pageName).classList.add('active');
+            event.target.classList.add('active');
+        }
+        
+        async function getVerdict() {
+            const problem = document.getElementById('problem').value.trim();
+            if (!problem) { alert('اكتب قضيتك الأول!'); return; }
+            
+            currentProblem = problem;
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('verdict').style.display = 'none';
+            document.getElementById('error').style.display = 'none';
+            document.getElementById('judgeBtn').disabled = true;
+            
+            try {
+                const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+                const prompt = SYSTEM_PROMPT.replace('{problem}', problem);
+                
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: prompt }] }],
+                        generationConfig: {
+                            temperature: 1.0,
+                            responseMimeType: "application/json",
+                            responseSchema: {
+                                type: "OBJECT",
+                                properties: {
+                                    case_title: { type: "STRING" },
+                                    accused: { type: "STRING" },
+                                    victim: { type: "STRING" },
+                                    analysis: { type: "STRING" },
+                                    verdict: { type: "STRING" },
+                                    punishment: { type: "ARRAY", items: { type: "STRING" } },
+                                    closing: { type: "STRING" }
+                                },
+                                required: ["case_title", "accused", "victim", "analysis", "verdict", "punishment", "closing"]
+                            }
+                        }
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error?.message || 'خطأ API');
+                }
+
+                let text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+                if (!text) throw new Error('لا يوجد رد');
+
+                text = text.replace(/```json\s?/g, '').replace(/```\s?/g, '').trim();
+                
+                let result;
+                try {
+                    result = JSON.parse(text);
+                } catch (parseError) {
+                    result = {
+                        case_title: '⚖️ حكم المحكمة',
+                        accused: 'غير محدد',
+                        victim: 'غير محدد',
+                        analysis: text,
+                        verdict: 'انظر التحليل',
+                        punishment: ['راجع التحليل'],
+                        closing: '⚖️ رُفعت الجلسة!'
+                    };
+                }
+                
+                currentVerdict = result;
+                
+                document.getElementById('verdictContent').innerHTML = `
+                    <h3 style="color: #ffd700; text-align: center; margin-bottom: 20px;">${result.case_title || '⚖️ قضية'}</h3>
+                    <div class="verdict-item"><strong>👤 المتهم:</strong> ${result.accused || '-'}</div>
+                    <div class="verdict-item"><strong>👤 المجني عليه:</strong> ${result.victim || '-'}</div>
+                    <div class="verdict-item"><strong>🔍 التحليل:</strong><br>${result.analysis || '-'}</div>
+                    <div class="verdict-item"><strong>⚖️ الحكم:</strong><br>${result.verdict || '-'}</div>
+                    <div class="verdict-item"><strong>😂 العقوبة:</strong><ul>${(result.punishment || []).map(p => `<li>${p}</li>`).join('')}</ul></div>
+                    <div class="closing">${result.closing || '⚖️ رُفعت الجلسة!'}</div>
+                `;
+                document.getElementById('verdict').style.display = 'block';
+                
+            } catch (error) {
+                document.getElementById('error').textContent = `❌ ${error.message}`;
+                document.getElementById('error').style.display = 'block';
+            } finally {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('judgeBtn').disabled = false;
+            }
+        }
+        
+        // Share Functions
+        function getShareText() {
+            if (!currentVerdict) return '';
+            const v = currentVerdict;
+            return `⚖️ حكم المحكمة الشعبية:\n\n${v.case_title}\n\n👤 المتهم: ${v.accused}\n👤 المجني عليه: ${v.victim}\n\n🔍 التحليل: ${v.analysis}\n\n⚖️ الحكم: ${v.verdict}\n\n😂 العقوبة: ${v.punishment?.join(' | ')}\n\n${v.closing}\n\nجرب بنفسك: ${window.location.href}`;
+        }
+        
+        function shareOn(platform) {
+            const text = encodeURIComponent(getShareText());
+            const url = encodeURIComponent(window.location.href);
+            let shareUrl = '';
+            
+            switch(platform) {
+                case 'whatsapp':
+                    shareUrl = `https://wa.me/?text=${text}`;
+                    break;
+                case 'facebook':
+                    shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+                    break;
+                case 'twitter':
+                    shareUrl = `https://twitter.com/intent/tweet?text=${text}`;
+                    break;
+                case 'telegram':
+                    shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+                    break;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank');
+            }
+        }
+        
+        function copyVerdict() {
+            const text = getShareText();
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ تم نسخ الحكم! الصقه في أي مكان');
+            }).catch(() => {
+                alert('❌ فشل النسخ، حاول تاني');
+            });
+        }
+    </script>
+</body>
+</html>
